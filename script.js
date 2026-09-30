@@ -1655,6 +1655,9 @@ function showResults() {
     displayResults();
 }
 
+
+
+
 async function displayResults() {
 
     const container =
@@ -1665,16 +1668,26 @@ async function displayResults() {
         return;
     }
 
-    container.innerHTML = "⏳ در حال دریافت نتایج...";
-const { data: results, error } =
-    await supabaseClient
-    .from("exam_results")
-    .select("*");
+    container.innerHTML =
+        "⏳ در حال دریافت نتایج...";
 
-console.log("نتایج دریافتی از Supabase:", results);
-console.log("خطای Supabase:", error);
+    const { data: results, error } =
+        await supabaseClient
+        .from("exam_results")
+        .select("*");
+
+    console.log(
+        "نتایج دریافتی از Supabase:",
+        results
+    );
+
+    console.log(
+        "خطای Supabase:",
+        error
+    );
 
     if (error) {
+
         console.error(error);
 
         container.innerHTML =
@@ -1692,6 +1705,9 @@ console.log("خطای Supabase:", error);
         return;
     }
 
+    // نتایج را برای تابع showExamDetails قابل دسترسی می‌کنیم
+    window.examResults = results;
+
     container.innerHTML = "";
 
     results.forEach(function(result, index) {
@@ -1699,10 +1715,26 @@ console.log("خطای Supabase:", error);
         const card =
             document.createElement("div");
 
-        card.className = "result-card";
+        card.className =
+            "result-card";
+
+        card.style.marginBottom =
+            "20px";
+
+        card.style.padding =
+            "15px";
+
+        card.style.border =
+            "1px solid #ddd";
+
+        card.style.borderRadius =
+            "10px";
 
         card.innerHTML = `
-            <h3>آزمون ${index + 1}</h3>
+
+            <h3>
+                آزمون ${index + 1}
+            </h3>
 
             <p>
                 👤 <strong>دانش‌آموز:</strong>
@@ -1730,6 +1762,26 @@ console.log("خطای Supabase:", error);
                 📅 <strong>تاریخ:</strong>
                 ${result.date || "-"}
             </p>
+
+            <br>
+
+            <button
+                onclick="showExamDetails(${index}, this)"
+            >
+                🔍 مشاهده جزئیات پاسخ‌ها
+            </button>
+
+            <div
+                class="exam-details"
+                style="
+                    display:none;
+                    margin-top:15px;
+                    padding:15px;
+                    border-radius:10px;
+                    background:#f5f5f5;
+                "
+            ></div>
+
         `;
 
         container.appendChild(card);
@@ -1738,10 +1790,251 @@ console.log("خطای Supabase:", error);
 
 }
 
+function showExamDetails(index, button) {
 
+    const results =
+        window.examResults;
 
+    if (!results) {
 
+        alert(
+            "❌ اطلاعات نتایج پیدا نشد."
+        );
 
+        return;
+    }
+
+    const result =
+        results[index];
+
+    if (!result) {
+
+        alert(
+            "❌ نتیجه آزمون پیدا نشد."
+        );
+
+        return;
+    }
+
+    // پیدا کردن کارت همین آزمون
+    const card =
+        button.closest(".result-card");
+
+    if (!card) {
+
+        alert(
+            "❌ کارت نتیجه پیدا نشد."
+        );
+
+        return;
+    }
+
+    // پیدا کردن بخش جزئیات داخل همان کارت
+    const details =
+        card.querySelector(".exam-details");
+
+    if (!details) {
+
+        alert(
+            "❌ بخش جزئیات پیدا نشد."
+        );
+
+        return;
+    }
+
+    // باز و بسته کردن جزئیات
+    if (
+        details.style.display === "block"
+    ) {
+
+        details.style.display =
+            "none";
+
+        return;
+    }
+
+    let answers =
+        result.answers;
+
+    // اگر answers به صورت متن ذخیره شده باشد
+    if (
+        typeof answers === "string"
+    ) {
+
+        try {
+
+            answers =
+                JSON.parse(answers);
+
+        } catch (error) {
+
+            console.error(
+                "خطا در تبدیل answers:",
+                error
+            );
+
+            details.innerHTML = `
+                <p>
+                    ❌ ساختار پاسخ‌ها قابل خواندن نیست.
+                </p>
+            `;
+
+            details.style.display =
+                "block";
+
+            return;
+        }
+    }
+
+    // اگر پاسخی ذخیره نشده باشد
+    if (
+        !answers ||
+        (
+            Array.isArray(answers) &&
+            answers.length === 0
+        )
+    ) {
+
+        details.innerHTML = `
+            <p>
+                📭 پاسخ‌های این آزمون ذخیره نشده‌اند.
+            </p>
+        `;
+
+        details.style.display =
+            "block";
+
+        return;
+    }
+
+    let html = `
+
+        <h4>
+            📝 جزئیات پاسخ‌های
+            ${result.student_name || ""}
+        </h4>
+
+    `;
+
+    // اگر answers آرایه باشد
+    if (Array.isArray(answers)) {
+
+        answers.forEach(
+            function(answer, answerIndex) {
+
+                let studentAnswer =
+                    "-";
+
+                if (
+                    answer &&
+                    typeof answer === "object"
+                ) {
+
+                    studentAnswer =
+                        answer.userAnswer ??
+                        answer.studentAnswer ??
+                        answer.answer ??
+                        "-";
+
+                } else {
+
+                    studentAnswer =
+                        answer ?? "-";
+
+                }
+
+                html += `
+
+                    <div
+                        style="
+                            margin-bottom:15px;
+                            padding:12px;
+                            background:white;
+                            border-radius:8px;
+                        "
+                    >
+
+                        <strong>
+                            سؤال ${answerIndex + 1}
+                        </strong>
+
+                        <p>
+                            👨‍🎓 پاسخ دانش‌آموز:
+                            <strong>
+                                ${studentAnswer}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+    }
+
+    // اگر answers به صورت object باشد
+    else if (
+        typeof answers === "object"
+    ) {
+
+        Object.keys(answers).forEach(
+            function(key) {
+
+                let studentAnswer =
+                    answers[key];
+
+                if (
+                    studentAnswer &&
+                    typeof studentAnswer === "object"
+                ) {
+
+                    studentAnswer =
+                        studentAnswer.userAnswer ??
+                        studentAnswer.studentAnswer ??
+                        studentAnswer.answer ??
+                        "-";
+
+                }
+
+                html += `
+
+                    <div
+                        style="
+                            margin-bottom:15px;
+                            padding:12px;
+                            background:white;
+                            border-radius:8px;
+                        "
+                    >
+
+                        <strong>
+                            سؤال ${key}
+                        </strong>
+
+                        <p>
+                            👨‍🎓 پاسخ دانش‌آموز:
+                            <strong>
+                                ${studentAnswer}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+    }
+
+    details.innerHTML =
+        html;
+
+    details.style.display =
+        "block";
+}
 
 let progressChart = null;
 
@@ -2133,10 +2426,10 @@ function changeQuestionType() {
 
 
 
-document.getElementById("question").style.fontFamily = "yol";
+document.getElementById("question").style.fontFamily = "BBadr";
 
 document.querySelectorAll(".option").forEach(option => {
-    option.style.fontFamily = "yol";
+    option.style.fontFamily = "BBadr";
 });
 
 // تغییر فونت همه پاراگراف‌ها
