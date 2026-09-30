@@ -24,7 +24,42 @@
 }
 
 :root {
-    --font-family: "BBadr";
+    --font-family: "titr";
+}
+
+#student-name{
+    font-family: "mit";
+    text-justify: 30px;
+}
+.paye{
+    font-family: "mit";
+}
+
+.start{
+    color:blue;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#teacher-email,#teacher-password{
+    
+    font-family: zar;
+}
+
+button{
+    font-family: zar;
+    
 }
 
 
@@ -74,7 +109,7 @@ button {
     padding: 14px;
     border: none;
     border-radius: 10px;
-    background: #176b3a;
+    background: #FFD41D;
     color: white;
     font-size: 17px;
     cursor: pointer;
@@ -82,9 +117,12 @@ button {
 }
 
 button:hover {
-    background: #0f512b;
+    background: #FFA240;
 }
-
+button::active{
+    background:#FFA240;
+    border-radius: 15px;
+}
 .top {
     display: flex;
     justify-content: space-between;
