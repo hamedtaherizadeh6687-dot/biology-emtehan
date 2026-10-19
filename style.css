@@ -24,12 +24,15 @@
 }
 
 :root {
-    --font-family: "titr";
+    --font-family: "zar";
+    --color:black;
+   
 }
 
 #student-name{
     font-family: "mit";
     text-justify: 30px;
+    line-height: 10px;
 }
 .paye{
     font-family: "mit";
@@ -40,37 +43,25 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 #teacher-email,#teacher-password{
     
-    font-family: zar;
+    font-family: yol;
 }
 
 button{
-    font-family: zar;
+    font-family: yol;
     
 }
 
 
 * {
     box-sizing: border-box;
+    line-height: 28px;
 }
 
 body {
     margin: 0;
-    
-    background: #eef7f0;
+    background: #c8ff00;
     color: #222;
     font-family: var(--font-family);
 }
@@ -110,7 +101,7 @@ button {
     border: none;
     border-radius: 10px;
     background: #FFD41D;
-    color: white;
+    color: rgb(0, 17, 255);
     font-size: 17px;
     cursor: pointer;
     margin-top: 10px;
@@ -165,8 +156,8 @@ button::active{
 }
 
 .option.selected {
-    border-color: #176b3a;
-    background: #dff2e3;
+    border-color: #fbff00;
+    background: #ff7300a8;
 }
 
 #quiz-screen,
@@ -187,7 +178,8 @@ button::active{
     }
 
     h1 {
-        font-size: 24px;
+        font-size: 30px;
+        
     }
 
     h2 {
@@ -268,7 +260,11 @@ textarea {
 
 .result-card h3 {
     margin-top: 0;
-    color: #176b3a;
+    color: #a800ad;
+}
+.result-card h3:active{
+    background-color: #c8ff00;
+    color: #222;
 }
 
 .result-card p {
@@ -278,5 +274,38 @@ textarea {
 .empty-results {
     text-align: center;
     padding: 20px;
-    color: #777;
+    color: rgb(0, 0, 0);
+}
+
+#titr{
+    font-family: titr;
+}
+placeholder{
+    font-family:zar ;
+}
+@font-face {
+    font-family: yekan;
+    src: url(Fonts/BYekan.woff);
+}
+
+#paye{
+    font-family: zar;
+}
+#grade{
+    font-family: zar;
+}
+#chapter{
+    font-family: zar;
+}
+#dars{
+    font-family: zar;
+}
+#question-count{
+    font-family: zar;
+}
+#nums{
+    font-family:zar;
+}
+#exam-time{
+    font-family: zar;
 }
