@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>آزمون آنلاین زیست‌شناسی</title>
+    <title>آزمون آنلاین مطالعات اجتماعی </title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -17,51 +17,72 @@
 
 <div class="container">
 
-    <h1>🧬 آزمون آنلاین زیست‌شناسی</h1>
+    <h1 id="titr">  آزمون آنلاین مطالعات اجتماعی</h1>
 
     <!-- صفحه شروع -->
    <div id="start-screen">
 
-    <h2>🌱 تنظیم آزمون</h2>
+    <h2>  دبیر : حامد طاهری زاده</h2>
 
     <input
-       type="text"
+      type="text"
         id="student-name"
         placeholder="نام و نام خانوادگی">
 
 
-    <label for="grade">پایه:</label>
+    <label id="paye" for="grade">پایه:</label>
 
     <select id="grade">
 
-        <option value="همه">همه پایه‌ها</option>
-        <option value="دهم">دهم</option>
-        <option value="یازدهم">یازدهم</option>
-        <option value="دوازدهم">دوازدهم</option>
+        <option class="paye" value="همه">همه پایه‌ها</option>
+        <option value="    هفتم">هفتم</option>
+        <option value="هشتم">هشتم</option>
+        <option value="نهم">نهم</option>
 
     </select>
 
 
-    <label for="chapter">فصل:</label>
+    <label id="dars" for="chapter">درس:</label>
 
     <select id="chapter">
 
-        <option value="همه">همه فصل‌ها</option>
-        <option value="فصل 1">فصل 1</option>
-        <option value="فصل 2">فصل 2</option>
-        <option value="فصل 3">فصل 3</option>
+        <option class="paye" value="همه">همه درس ها</option>
+        <option value="درس 1">درس 1</option>
+        <option value="درس 2">درس 2</option>
+        <option value="درس 3">درس 3</option>
+        <option value="درس 4">درس 4</option>
+        <option value="درس 5">درس 5</option>
+        <option value="درس 6">درس 6</option>
+        <option value="درس 7">درس 7</option>
+        <option value="درس 8">درس 8</option>
+        <option value="درس 9">درس 9</option>
+        <option value="درس 10">درس 10</option>
+        <option value="درس 11">درس 11</option>
+        <option value="درس 12">درس 12</option>
+        <option value="درس 13">درس 13</option>
+        <option value="درس 14">درس 14</option>
+        <option value="درس 15">درس 15</option>
+        <option value="درس 16">درس 16</option>
+        <option value="درس 17">درس 17</option>
+        <option value="درس 18">درس 18</option>
+        <option value="درس 19">درس 19</option>
+        <option value="درس 20">درس 20</option>
+        <option value="درس 21">درس 21</option>
+        <option value="درس 22">درس 22</option>
+        <option value="درس 23">درس 23</option>
+        <option value="درس 24">درس 24</option>
 
     </select>
 
 
-    <label for="question-count">
+    <label id="nums" for="question-count">
         تعداد سؤال:
     </label>
 
     <select id="question-count">
 
-        <option value="5">5 سؤال</option>
-        <option value="10">10 سؤال</option>
+        
+        <option value="20">20 سؤال</option>
 
     </select>
 
@@ -71,28 +92,16 @@
     </label>
 
     <select id="exam-time">
-
-        <option value="120">
-            2 دقیقه
-        </option>
-
-        <option value="300">
-            5 دقیقه
-        </option>
-
-        <option value="600">
-            10 دقیقه
-        </option>
-
-        <option value="1200">
-            20 دقیقه
+ 
+        <option id="dag" value="1200">
+            15 دقیقه
         </option>
 
     </select>
 
 
-    <button onclick="startExam()">
-        شروع آزمون 🚀
+    <button class="start" onclick="startExam()">
+        شروع آزمون  
     </button>
 
 </div>
@@ -108,7 +117,7 @@
             </span>
 
             <span id="timer">
-                ⏱️ 2:00
+                  15:00
             </span>
 
         </div>
@@ -144,7 +153,7 @@
     <div id="result-screen">
           
 
-        <h2>🎉 آزمون تمام شد</h2>
+        <h2>  آزمون تمام شد</h2>
 
         <p id="result-name"></p>
 
