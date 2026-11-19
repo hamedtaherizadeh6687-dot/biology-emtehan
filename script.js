@@ -41,16 +41,17 @@ async function loadQuestionsFromSupabase() {
     try {
 
         const { data, error } =
-    await supabaseClient
-        .from("student_questions")
-        .select(
-            "id, type, grade, chapter, question, options"
-        )
-        .order("id", { ascending: true });
-        console.log(
-            "نتایج دریافتی از Supabase:",
-            data
-        );
+        await supabaseClient
+            .from("student_questions")
+            .select(
+                "id, type, grade, chapter, question, options"
+            )
+            .order("id", { ascending: true });
+    
+    console.log(
+        "نتایج دریافتی از Supabase:",
+        data
+    );
 
 
         if (error) {
@@ -1523,11 +1524,59 @@ async function addQuestion() {
        تشریحی
     ========================= */
 
+
+
     else if (type === "essay") {
 
-        updatedQuestion.answer =
-            null;
+        updatedQuestion.answer = null;
+    
+const rubric = [
+    {
+        criterion: document.getElementById("rubric-criterion-1").value.trim(),
+        keywords: document.getElementById("rubric-keywords-1").value
+            .split(",")
+            .map(word => word.trim())
+            .filter(word => word !== ""),
+        points: Number(document.getElementById("rubric-points-1").value)
+    },
+    {
+        criterion: document.getElementById("rubric-criterion-2").value.trim(),
+        keywords: document.getElementById("rubric-keywords-2").value
+            .split(",")
+            .map(word => word.trim())
+            .filter(word => word !== ""),
+        points: Number(document.getElementById("rubric-points-2").value)
+    },
+    {
+        criterion: document.getElementById("rubric-criterion-3").value.trim(),
+        keywords: document.getElementById("rubric-keywords-3").value
+            .split(",")
+            .map(word => word.trim())
+            .filter(word => word !== ""),
+        points: Number(document.getElementById("rubric-points-3").value)
     }
+];
+
+    
+        if (rubric.some(item => item.criterion === "")) {
+            alert("لطفاً متن هر سه معیار تصحیح را وارد کنید.");
+            return;
+        }
+    
+        if (rubric.some(item => !Number.isFinite(item.points) || item.points <= 0)) {
+            alert("نمره هر معیار باید بیشتر از صفر باشد.");
+            return;
+        }
+    
+        updatedQuestion.grading_rubric = rubric;
+        updatedQuestion.accepted_answers = [];
+    }
+    
+
+
+
+
+
 
 
     /* ==================================================
@@ -1626,6 +1675,9 @@ async function addQuestion() {
 
     displayQuestions();
 }
+
+
+
 /* پاک کردن فرم */
 
 function clearQuestionForm() {
@@ -1758,6 +1810,54 @@ async function displayQuestions() {
             optionsHTML = `
                 <p>نوع سؤال: تشریحی</p>
             `;
+        
+            const rubric = Array.isArray(question.grading_rubric)
+                ? question.grading_rubric
+                : [];
+        
+            if (rubric.length > 0) {
+        
+                optionsHTML += `
+                    <div style="
+                        margin-top: 10px;
+                        padding: 10px;
+                        border: 1px solid #b3d4fc;
+                        border-radius: 8px;
+                        background: #f3f8ff;
+                    ">
+                        <strong>📋 معیارهای تصحیح:</strong>
+                `;
+        
+                rubric.forEach(function(item, index) {
+        
+                    optionsHTML += `
+                        <p>
+                            ${index + 1}. ${item.criterion}
+                            — نمره: ${item.points}
+                        </p>
+                    `;
+        
+                });
+        
+                const totalPoints = rubric.reduce(
+                    function(sum, item) {
+                        return sum + (Number(item.points) || 0);
+                    },
+                    0
+                );
+        
+                optionsHTML += `
+                        <strong>مجموع نمره معیارها: ${totalPoints}</strong>
+                    </div>
+                `;
+        
+            } else {
+        
+                optionsHTML += `
+                    <p>⚠️ برای این سؤال هنوز معیاری ثبت نشده است.</p>
+                `;
+        
+            }
         }
 
         card.innerHTML = `
@@ -1896,6 +1996,9 @@ async function deleteQuestion(questionId) {
     displayQuestions();
 }
 
+
+
+
 async function editQuestion(questionId) {
 
     console.log(
@@ -1907,7 +2010,7 @@ async function editQuestion(questionId) {
         await supabaseClient
             .from("questions")
             .select(
-                "id, type, grade, chapter, question, options, answer"
+                "id, type, grade, chapter, question, options, answer, grading_rubric, accepted_answers"
             )
             .eq("id", questionId)
             .single();
@@ -2061,6 +2164,58 @@ async function editQuestion(questionId) {
                 question.answer || "";
         }
     }
+
+    /* =========================
+   پر کردن معیارهای تصحیح تشریحی
+========================= */
+
+if (question.type === "essay") {
+
+    const rubric = Array.isArray(question.grading_rubric)
+        ? question.grading_rubric
+        : [];
+
+
+        for (let i = 0; i < 3; i++) {
+
+            const criterionInput =
+                document.getElementById(
+                    "rubric-criterion-" + (i + 1)
+                );
+        
+            const keywordsInput =
+                document.getElementById(
+                    "rubric-keywords-" + (i + 1)
+                );
+        
+            const pointsInput =
+                document.getElementById(
+                    "rubric-points-" + (i + 1)
+                );
+        
+            if (criterionInput) {
+                criterionInput.value =
+                    rubric[i]?.criterion || "";
+            }
+        
+            if (keywordsInput) {
+                const keywords = rubric[i]?.keywords;
+        
+                keywordsInput.value = Array.isArray(keywords)
+                    ? keywords.join(", ")
+                    : "";
+            }
+        
+            if (pointsInput) {
+                pointsInput.value =
+                    rubric[i]?.points ?? [2, 2, 1][i];
+            }
+        }
+        
+
+
+   
+}
 
     alert(
         "✏️ سؤال برای ویرایش آماده شد."
@@ -3437,109 +3592,65 @@ function changeQuestionType() {
     const scoreBox =
         document.getElementById("score-box");
 
+    const rubricBox =
+        document.getElementById("essay-rubric-box");
+
     const answerLabel =
         answerBox.querySelector("label");
 
-    const correctAnswer =
-        document.getElementById("correct-answer");
+    // ابتدا بخش‌های اضافی را مخفی می‌کنیم
+    optionsBox.style.display = "none";
+    answerBox.style.display = "none";
+    rubricBox.style.display = "none";
 
+    if (scoreBox) {
+        scoreBox.style.display = "none";
+    }
 
-    // =========================
     // چهارگزینه‌ای
-    // =========================
-
     if (type === "mcq") {
 
         optionsBox.style.display = "block";
-
         answerBox.style.display = "block";
 
-        scoreBox.style.display = "none";
+        answerLabel.textContent = "پاسخ صحیح:";
 
-
-        answerLabel.textContent =
-            "پاسخ صحیح:";
-
-
-        correctAnswer.outerHTML = `
+        document.getElementById("correct-answer").outerHTML = `
             <select id="correct-answer">
-
-                <option value="0">
-                    گزینه ۱
-                </option>
-
-                <option value="1">
-                    گزینه ۲
-                </option>
-
-                <option value="2">
-                    گزینه ۳
-                </option>
-
-                <option value="3">
-                    گزینه ۴
-                </option>
-
+                <option value="0">گزینه ۱</option>
+                <option value="1">گزینه ۲</option>
+                <option value="2">گزینه ۳</option>
+                <option value="3">گزینه ۴</option>
             </select>
         `;
     }
 
-
-    // =========================
-    // صحیح / غلط
-    // =========================
-
+    // صحیح و غلط
     else if (type === "truefalse") {
 
-        optionsBox.style.display = "none";
-
         answerBox.style.display = "block";
 
-        scoreBox.style.display = "none";
+        answerLabel.textContent = "پاسخ صحیح:";
 
-
-        answerLabel.textContent =
-            "پاسخ صحیح:";
-
-
-        correctAnswer.outerHTML = `
+        document.getElementById("correct-answer").outerHTML = `
             <select id="correct-answer">
-
-                <option value="true">
-                    صحیح
-                </option>
-
-                <option value="false">
-                    غلط
-                </option>
-
+                <option value="true">صحیح</option>
+                <option value="false">غلط</option>
             </select>
         `;
     }
 
-
-    // =========================
-    // جای خالی
-    // کوتاه پاسخ
-    // =========================
-
+    // جای خالی و کوتاه پاسخ
     else if (
         type === "fillblank" ||
         type === "shortanswer"
     ) {
 
-        optionsBox.style.display = "none";
-
         answerBox.style.display = "block";
 
-        scoreBox.style.display = "none";
+        answerLabel.textContent = "پاسخ صحیح:";
 
-
-        answerLabel.textContent =
-            "پاسخ صحیح:";
-
-
-        correctAnswer.outerHTML = `
+        document.getElementById("correct-answer").outerHTML = `
             <input
                 type="text"
                 id="correct-answer"
@@ -3547,22 +3658,16 @@ function changeQuestionType() {
         `;
     }
 
-
-    // =========================
     // تشریحی
-    // =========================
-
     else if (type === "essay") {
 
-        optionsBox.style.display = "none";
+        if (scoreBox) {
+            scoreBox.style.display = "block";
+        }
 
-        answerBox.style.display = "none";
-
-        scoreBox.style.display = "block";
+        rubricBox.style.display = "block";
     }
-
 }
-
 
 
 
