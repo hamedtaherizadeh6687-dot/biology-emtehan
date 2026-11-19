@@ -176,16 +176,16 @@
 
             <select id="teacher-grade">
 
-                <option value="دهم">
-                    دهم
+                <option value="هفتم">
+                    هفتم
                 </option>
 
-                <option value="یازدهم">
-                    یازدهم
+                <option value="هشتم">
+                    هشتم
                 </option>
 
-                <option value="دوازدهم">
-                    دوازدهم
+                <option value="نهم">
+                    نهم
                 </option>
 
             </select>
@@ -195,22 +195,118 @@
             <!-- فصل -->
 
             <label for="teacher-chapter">
-                فصل:
+               درس:
             </label>
 
 
             <select id="teacher-chapter">
 
-                <option value="فصل 1">
-                    فصل 1
+                <option value="درس 1و2">
+                   درس 1 و 2
                 </option>
 
-                <option value="فصل 2">
-                    فصل 2
+                <option value="درس 3">
+                   درس 3
                 </option>
 
-                <option value="فصل 3">
-                    فصل 3
+                <option value="درس 4  ">
+                   درس 4
+                </option>
+
+                <option value="درس 5  ">
+                   درس 5
+                </option>
+
+                <option value="درس 6  ">
+                   درس 6
+                </option>
+
+                <option value="درس 7  ">
+                   درس 7
+                </option>
+
+                <option value="درس 8  ">
+                   درس 8
+                </option>
+
+                
+                <option value="درس 9  ">
+                   درس 9
+                </option>
+
+
+                <option value="10 درس ">
+                   10 درس
+                </option>
+
+
+                <option value="درس 11  ">
+                   درس 11
+                </option>
+
+
+                <option value="درس 12  ">
+                   درس 12
+                </option>
+
+
+                <option value="13  ">
+                   درس 13
+                </option>
+
+
+                <option value="درس 14  ">
+                   درس 14
+                </option>
+
+
+                <option value="درس 15  ">
+                   درس 15
+                </option>
+
+
+                <option value="درس 16  ">
+                   درس 16
+                </option>
+
+
+                <option value="درس 17  ">
+                   درس 17
+                </option>
+
+
+                <option value="درس 18  ">
+                   درس 18
+                </option>
+
+
+                <option value="درس 19  ">
+                   درس 19
+                </option>
+
+
+                <option value="درس 20  ">
+                   درس 20
+                </option>
+
+
+                <option value="درس 21  ">
+                   درس 21
+                </option>
+
+
+                <option value="درس 22  ">
+                   درس 22
+                </option>
+
+
+                <option value="درس 23  ">
+                   درس 23
+                </option>
+
+
+                <option value="درس 24  ">
+                   درس 24
                 </option>
 
             </select>
@@ -318,28 +414,55 @@
             </div>
 
 
+           
+<div id="essay-rubric-box" style="display: none; margin-top: 15px;">
+    <h3>معیارهای تصحیح سؤال تشریحی</h3>
+    <p>برای هر معیار، متن، کلیدواژه‌ها و نمره را وارد کنید.</p>
 
-            <!-- ========================= -->
-            <!-- نمره سؤال تشریحی -->
-            <!-- ========================= -->
+    <div class="rubric-item">
+        <label>معیار اول:</label>
+        <input type="text" id="rubric-criterion-1"
+               placeholder="مثلاً توضیح فرایند فتوسنتز">
 
-            <div id="score-box"
-                 style="display:none;">
+        <label>کلیدواژه‌های معیار اول:</label>
+        <input type="text" id="rubric-keywords-1"
+               placeholder="مثلاً نور، آب، گلوکز">
 
-                <label for="question-score">
-                    نمره سؤال:
-                </label>
+        <label>نمرهٔ معیار اول:</label>
+        <input type="number" id="rubric-points-1"
+               min="0" step="0.25" value="2">
+    </div>
 
+    <div class="rubric-item">
+        <label>معیار دوم:</label>
+        <input type="text" id="rubric-criterion-2"
+               placeholder="مثلاً نقش نور در فتوسنتز">
 
-                <input
-                    type="number"
-                    id="question-score"
-                    min="0"
-                    step="0.25"
-                    value="1"
-                    placeholder="مثلاً 2">
+        <label>کلیدواژه‌های معیار دوم:</label>
+        <input type="text" id="rubric-keywords-2"
+               placeholder="مثلاً نور، انرژی">
 
-            </div>
+        <label>نمرهٔ معیار دوم:</label>
+        <input type="number" id="rubric-points-2"
+               min="0" step="0.25" value="2">
+    </div>
+
+    <div class="rubric-item">
+        <label>معیار سوم:</label>
+        <input type="text" id="rubric-criterion-3"
+               placeholder="مثلاً نقش کلروفیل">
+
+        <label>کلیدواژه‌های معیار سوم:</label>
+        <input type="text" id="rubric-keywords-3"
+               placeholder="مثلاً کلروفیل، سبزینه">
+
+        <label>نمرهٔ معیار سوم:</label>
+        <input type="number" id="rubric-points-3"
+               min="0" step="0.25" value="1">
+    </div>
+
+    <p>نمرهٔ کل سؤال: ۵</p>
+</div>
 
 
 
