@@ -1032,41 +1032,26 @@ function updateTimer() {
 
 async function saveExamResult(result) {
 
-    const { data, error } =
-        await supabaseClient
-            .from("exam_results")
-            .insert([{
-                student_name: result.studentName,
-                score: result.score,
-                total_questions: result.totalQuestions,
-                correct_answers: result.correctAnswers,
-                wrong_answers: result.wrongAnswers,
-                date: result.date,
-                answers: result.answers
-            }])
-            .select();
+    const { data, error } = await supabaseClient
+    .from("exam_results")
+    .insert([{
+        student_name: result.studentName,
+        score: result.score,
+        total_questions: result.totalQuestions,
+        correct_answers: result.correctAnswers,
+        wrong_answers: result.wrongAnswers,
+        date: result.date,
+        answers: result.answers
+    }])
+    .select();
 
-    if (error) {
+if (error) {
+    console.error("خطای ذخیره نتیجه:", error);
+    alert("نتیجه ذخیره نشد:\n" + error.message);
+} else {
+    console.log("نتیجه با موفقیت ذخیره شد:", data);
+}
 
-        console.error(
-            "❌ خطا در ذخیره نتیجه:",
-            error
-        );
-
-        alert(
-            "❌ نتیجه آزمون ذخیره نشد:\n\n" +
-            error.message
-        );
-
-        return false;
-    }
-
-    console.log(
-        "✅ نتیجه با موفقیت در Supabase ذخیره شد:",
-        data
-    );
-
-    return true;
 }
 
 
@@ -1174,9 +1159,11 @@ async function showResult() {
     const finalScore =
         Number(gradeResult.score) || 0;
 
+        const correctAnswers =
+        Number(gradeResult.correctAnswers) || 0;
+    
     const wrongAnswers =
-        totalQuestions - finalScore;
-
+        Number(gradeResult.wrongAnswers) || 0;
     // پاسخ‌های برگشتی از Supabase
     const gradedAnswers =
         gradeResult.answers || submittedAnswers;
@@ -1190,7 +1177,7 @@ async function showResult() {
 
         totalQuestions: totalQuestions,
 
-        correctAnswers: finalScore,
+        correctAnswers: correctAnswers,
 
         wrongAnswers: wrongAnswers,
 
@@ -1526,52 +1513,167 @@ async function addQuestion() {
 
 
 
-    else if (type === "essay") {
+   
+else if (type === "essay") {
 
-        updatedQuestion.answer = null;
-    
-const rubric = [
-    {
-        criterion: document.getElementById("rubric-criterion-1").value.trim(),
-        keywords: document.getElementById("rubric-keywords-1").value
-            .split(",")
-            .map(word => word.trim())
-            .filter(word => word !== ""),
-        points: Number(document.getElementById("rubric-points-1").value)
-    },
-    {
-        criterion: document.getElementById("rubric-criterion-2").value.trim(),
-        keywords: document.getElementById("rubric-keywords-2").value
-            .split(",")
-            .map(word => word.trim())
-            .filter(word => word !== ""),
-        points: Number(document.getElementById("rubric-points-2").value)
-    },
-    {
-        criterion: document.getElementById("rubric-criterion-3").value.trim(),
-        keywords: document.getElementById("rubric-keywords-3").value
-            .split(",")
-            .map(word => word.trim())
-            .filter(word => word !== ""),
-        points: Number(document.getElementById("rubric-points-3").value)
-    }
-];
+    // دریافت پاسخ کامل و مرجع
+    const referenceAnswer =
+        document
+            .getElementById("essay-reference-answer")
+            .value
+            .trim();
 
-    
-        if (rubric.some(item => item.criterion === "")) {
-            alert("لطفاً متن هر سه معیار تصحیح را وارد کنید.");
-            return;
+    // دریافت کلیدواژه‌ها و امتیاز هرکدام
+    const keywordItems =
+        document.querySelectorAll(
+            "#essay-keywords-list .essay-keyword-item"
+        );
+
+    const rubric = [];
+
+    keywordItems.forEach(function(item) {
+
+        const keyword =
+            item.querySelector(".essay-keyword")
+                .value
+                .trim();
+
+        const points =
+            Number(
+                item.querySelector(".essay-keyword-points")
+                    .value
+            );
+
+        // فقط مواردی که کلیدواژه دارند بررسی شوند
+        if (keyword !== "") {
+
+            rubric.push({
+                keyword: keyword,
+                points: points
+            });
+
         }
-    
-        if (rubric.some(item => !Number.isFinite(item.points) || item.points <= 0)) {
-            alert("نمره هر معیار باید بیشتر از صفر باشد.");
-            return;
-        }
-    
-        updatedQuestion.grading_rubric = rubric;
-        updatedQuestion.accepted_answers = [];
+
+    });
+
+    // بررسی پاسخ کامل
+    if (referenceAnswer === "") {
+
+        alert("لطفاً پاسخ کامل و مرجع را وارد کنید.");
+        return;
+
     }
-    
+
+    // بررسی وجود کلیدواژه
+    if (rubric.length === 0) {
+
+        alert("لطفاً حداقل یک کلیدواژه وارد کنید.");
+        return;
+
+    }
+
+    // بررسی امتیازها
+    if (
+        rubric.some(function(item) {
+            return !Number.isFinite(item.points) || item.points <= 0;
+        })
+    ) {
+
+        alert("امتیاز هر کلیدواژه باید بیشتر از صفر باشد.");
+        return;
+
+    }
+
+    // ذخیره پاسخ کامل در ستون answer
+    updatedQuestion.answer = referenceAnswer;
+
+    // ذخیره کلیدواژه‌ها در grading_rubric
+    updatedQuestion.grading_rubric = rubric;
+
+    updatedQuestion.accepted_answers = [];
+
+}
+
+else if (type === "essay") {
+
+    // دریافت پاسخ کامل و مرجع
+    const referenceAnswer =
+        document
+            .getElementById("essay-reference-answer")
+            .value
+            .trim();
+
+    // دریافت کلیدواژه‌ها و امتیاز هرکدام
+    const keywordItems =
+        document.querySelectorAll(
+            "#essay-keywords-list .essay-keyword-item"
+        );
+
+    const rubric = [];
+
+    keywordItems.forEach(function(item) {
+
+        const keyword =
+            item.querySelector(".essay-keyword")
+                .value
+                .trim();
+
+        const points =
+            Number(
+                item.querySelector(".essay-keyword-points")
+                    .value
+            );
+
+        // فقط مواردی که کلیدواژه دارند بررسی شوند
+        if (keyword !== "") {
+
+            rubric.push({
+                keyword: keyword,
+                points: points
+            });
+
+        }
+
+    });
+
+    // بررسی پاسخ کامل
+    if (referenceAnswer === "") {
+
+        alert("لطفاً پاسخ کامل و مرجع را وارد کنید.");
+        return;
+
+    }
+
+    // بررسی وجود کلیدواژه
+    if (rubric.length === 0) {
+
+        alert("لطفاً حداقل یک کلیدواژه وارد کنید.");
+        return;
+
+    }
+
+    // بررسی امتیازها
+    if (
+        rubric.some(function(item) {
+            return !Number.isFinite(item.points) || item.points <= 0;
+        })
+    ) {
+
+        alert("امتیاز هر کلیدواژه باید بیشتر از صفر باشد.");
+        return;
+
+    }
+
+    // ذخیره پاسخ کامل در ستون answer
+    updatedQuestion.answer = referenceAnswer;
+
+    // ذخیره کلیدواژه‌ها در grading_rubric
+    updatedQuestion.grading_rubric = rubric;
+
+    updatedQuestion.accepted_answers = [];
+
+}
+
 
 
 
@@ -2165,62 +2267,93 @@ async function editQuestion(questionId) {
         }
     }
 
-    /* =========================
-   پر کردن معیارهای تصحیح تشریحی
+
+/* =========================
+   پر کردن اطلاعات سؤال تشریحی
 ========================= */
 
 if (question.type === "essay") {
 
-    const rubric = Array.isArray(question.grading_rubric)
-        ? question.grading_rubric
-        : [];
+    // بازیابی پاسخ کامل
+    const referenceAnswer =
+        document.getElementById("essay-reference-answer");
 
+    if (referenceAnswer) {
+        referenceAnswer.value =
+            question.answer || "";
+    }
 
-        for (let i = 0; i < 3; i++) {
+    // بازیابی کلیدواژه‌ها
+    const keywordsList =
+        document.getElementById("essay-keywords-list");
 
-            const criterionInput =
-                document.getElementById(
-                    "rubric-criterion-" + (i + 1)
-                );
-        
-            const keywordsInput =
-                document.getElementById(
-                    "rubric-keywords-" + (i + 1)
-                );
-        
-            const pointsInput =
-                document.getElementById(
-                    "rubric-points-" + (i + 1)
-                );
-        
-            if (criterionInput) {
-                criterionInput.value =
-                    rubric[i]?.criterion || "";
-            }
-        
-            if (keywordsInput) {
-                const keywords = rubric[i]?.keywords;
-        
-                keywordsInput.value = Array.isArray(keywords)
-                    ? keywords.join(", ")
-                    : "";
-            }
-        
-            if (pointsInput) {
-                pointsInput.value =
-                    rubric[i]?.points ?? [2, 2, 1][i];
-            }
+    if (keywordsList) {
+
+        keywordsList.innerHTML = "";
+
+        const rubric =
+            Array.isArray(question.grading_rubric)
+                ? question.grading_rubric
+                : [];
+
+        rubric.forEach(function(item, index) {
+
+            const keywordItem =
+                document.createElement("div");
+
+            keywordItem.className =
+                "essay-keyword-item";
+
+            keywordItem.innerHTML = `
+                <label>کلیدواژه ${index + 1}:</label>
+
+                <input
+                    type="text"
+                    class="essay-keyword"
+                    placeholder="کلیدواژه را وارد کنید"
+                    value="${String(item.keyword || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")}"
+                >
+
+                <label>امتیاز:</label>
+
+                <input
+                    type="number"
+                    class="essay-keyword-points"
+                    min="0"
+                    step="0.25"
+                    value="${item.points ?? 1}"
+                >
+            `;
+
+            keywordsList.appendChild(keywordItem);
+
+        });
+
+        // اگر هنوز کلیدواژه‌ای ذخیره نشده باشد
+        if (rubric.length === 0) {
+            addEssayKeyword();
+            addEssayKeyword();
+            addEssayKeyword();
         }
-        
 
+    }
 
-   
+    // به‌روزرسانی مجموع امتیازها
+    if (typeof updateEssayTotalPoints === "function") {
+        updateEssayTotalPoints();
+    }
+
 }
+
 
     alert(
         "✏️ سؤال برای ویرایش آماده شد."
     );
 }
+
+
+
+
 
 function showResults() {
 
@@ -2669,16 +2802,14 @@ async function showExamDetails(index, button) {
         return;
     }
 
-    const card =
-        button.closest(".result-card");
+    const card = button.closest(".result-card");
 
     if (!card) {
         alert("❌ کارت نتیجه پیدا نشد.");
         return;
     }
 
-    const details =
-        card.querySelector(".exam-details");
+    const details = card.querySelector(".exam-details");
 
     if (!details) {
         alert("❌ بخش جزئیات پیدا نشد.");
@@ -2693,331 +2824,314 @@ async function showExamDetails(index, button) {
     let answers = result.answers;
 
     if (typeof answers === "string") {
-
         try {
             answers = JSON.parse(answers);
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ خطا در تبدیل answers:",
-                error
-            );
+        } catch (error) {
+            console.error("خطا در تبدیل پاسخ‌ها:", error);
 
             details.innerHTML =
                 "<p>❌ ساختار پاسخ‌ها قابل خواندن نیست.</p>";
 
             details.style.display = "block";
-
             return;
         }
     }
 
-    if (
-        !answers ||
-        !Array.isArray(answers) ||
-        answers.length === 0
-    ) {
-
+    if (!Array.isArray(answers) || answers.length === 0) {
         details.innerHTML =
             "<p>📭 پاسخ‌های این آزمون ذخیره نشده‌اند.</p>";
 
         details.style.display = "block";
-
         return;
     }
 
-    details.innerHTML =
-        "⏳ در حال دریافت پاسخ‌های صحیح...";
+    details.innerHTML = "⏳ در حال دریافت اطلاعات سؤال‌ها...";
 
-    /*
-     * گرفتن ID سؤال‌ها
-     */
-
-    const questionIds =
-        answers
-            .map(function(answer) {
-                return answer.questionId;
-            })
-            .filter(function(id) {
-                return id !== null &&
-                       id !== undefined;
-            });
-
-    /*
-     * دریافت اطلاعات سؤال‌ها از Supabase
-     */
+    const questionIds = answers
+        .map(answer => answer.questionId)
+        .filter(id => id !== null && id !== undefined);
 
     const { data: questionsData, error } =
         await supabaseClient
             .from("questions")
             .select(
-                "id, type, question, options, answer"
+                "id, type, question, options, answer, grading_rubric"
             )
             .in("id", questionIds);
 
     if (error) {
-
-        console.error(
-            "❌ خطا در دریافت سؤال‌ها:",
-            error
-        );
+        console.error("خطا در دریافت سؤال‌ها:", error);
 
         details.innerHTML =
-            "❌ خطا در دریافت پاسخ صحیح:<br>" +
+            "❌ خطا در دریافت سؤال‌ها:<br>" +
             error.message;
 
+        details.style.display = "block";
         return;
     }
 
-    /*
-     * تبدیل سؤال‌ها به یک شیء برای دسترسی سریع
-     */
-
     const questionsMap = {};
 
-    questionsData.forEach(
-        function(question) {
-
-            questionsMap[question.id] =
-                question;
-
-        }
-    );
+    questionsData.forEach(question => {
+        questionsMap[question.id] = question;
+    });
 
     let html = `
         <h4>
-            📝 جزئیات آزمون
-            ${result.student_name || ""}
+            📝 جزئیات آزمون ${result.student_name || ""}
         </h4>
     `;
 
-    /*
-     * نمایش تک‌تک سؤال‌ها
-     */
+    answers.forEach((answer, answerIndex) => {
 
-    answers.forEach(
-        function(answer, answerIndex) {
+        const question = questionsMap[answer.questionId];
 
-            const question =
-                questionsMap[answer.questionId];
+        if (!question) {
+            html += `
+                <div style="margin-bottom:20px;padding:15px;background:white;border:1px solid #ddd;border-radius:10px;">
+                    ❌ اطلاعات سؤال ${answer.questionId} پیدا نشد.
+                </div>
+            `;
+            return;
+        }
 
-            if (!question) {
+        const type = question.type;
 
-                html += `
-                    <div
-                        style="
-                            margin-bottom:20px;
-                            padding:15px;
-                            background:white;
-                            border-radius:10px;
-                            border:1px solid #ddd;
-                        "
-                    >
-                        <p>
-                            ❌ اطلاعات سؤال
-                            ${answer.questionId}
-                            پیدا نشد.
-                        </p>
-                    </div>
-                `;
+        const userAnswer = answer.userAnswer ?? null;
+        const correctAnswer = question.answer ?? null;
 
-                return;
+        const options = Array.isArray(question.options)
+            ? question.options
+            : [];
+
+        let userAnswerText =
+            userAnswer === null || userAnswer === ""
+                ? "بدون پاسخ"
+                : String(userAnswer);
+
+        let correctAnswerText =
+            correctAnswer === null
+                ? "بدون پاسخ صحیح"
+                : String(correctAnswer);
+
+        // چهارگزینه‌ای
+        if (type === "mcq") {
+
+            if (
+                userAnswer !== null &&
+                options[Number(userAnswer)] !== undefined
+            ) {
+                userAnswerText =
+                    "گزینه " +
+                    (Number(userAnswer) + 1) +
+                    ": " +
+                    options[Number(userAnswer)];
             }
 
-            const userAnswer =
-                answer.userAnswer ?? null;
+            if (
+                correctAnswer !== null &&
+                options[Number(correctAnswer)] !== undefined
+            ) {
+                correctAnswerText =
+                    "گزینه " +
+                    (Number(correctAnswer) + 1) +
+                    ": " +
+                    options[Number(correctAnswer)];
+            }
+        }
 
-            const correctAnswer =
-                question.answer ?? null;
+        // صحیح و غلط
+        else if (type === "truefalse") {
 
-            const options =
-                Array.isArray(question.options)
-                    ? question.options
-                    : [];
+            if (userAnswer === true || userAnswer === "true") {
+                userAnswerText = "صحیح";
+            } else if (
+                userAnswer === false ||
+                userAnswer === "false"
+            ) {
+                userAnswerText = "غلط";
+            }
 
-            /*
-             * متن پاسخ دانش‌آموز
-             */
+            if (correctAnswer === true) {
+                correctAnswerText = "صحیح";
+            } else if (correctAnswer === false) {
+                correctAnswerText = "غلط";
+            }
+        }
 
-            let userAnswerText =
-                userAnswer === null ||
-                userAnswer === ""
+        // جای خالی و پاسخ کوتاه
+        else if (
+            type === "fillblank" ||
+            type === "shortanswer"
+        ) {
+            userAnswerText =
+                userAnswer === null || userAnswer === ""
                     ? "بدون پاسخ"
                     : String(userAnswer);
 
-            /*
-             * متن پاسخ صحیح
-             */
-
-            let correctAnswerText =
+            correctAnswerText =
                 correctAnswer === null
                     ? "بدون پاسخ صحیح"
                     : String(correctAnswer);
+        }
 
-            /*
-             * چهارگزینه‌ای
-             */
+        // نتیجه پاسخ
+        let resultText = "";
 
-            if (
-                question.type === "mcq"
-            ) {
+        if (type === "essay") {
 
-                if (
-                    userAnswer !== null &&
-                    options[userAnswer] !== undefined
-                ) {
+            resultText = `
+                <p style="color:#1769aa;">
+                    📝 سؤال تشریحی
+                </p>
+            `;
 
-                    userAnswerText =
-                        "گزینه " +
-                        (Number(userAnswer) + 1) +
-                        ": " +
-                        options[userAnswer];
-                }
+        } else if (
+            userAnswer === null ||
+            userAnswer === ""
+        ) {
 
-                if (
-                    correctAnswer !== null &&
-                    options[correctAnswer] !== undefined
-                ) {
+            resultText = `
+                <p style="color:#777;">⚪ بدون پاسخ</p>
+            `;
 
-                    correctAnswerText =
-                        "گزینه " +
-                        (Number(correctAnswer) + 1) +
-                        ": " +
-                        options[correctAnswer];
-                }
+        } else {
+
+            let isCorrect = false;
+
+            if (type === "mcq") {
+                isCorrect =
+                    Number(userAnswer) === Number(correctAnswer);
             }
 
-            /*
-             * صحیح / غلط
-             */
-
-            else if (
-                question.type === "truefalse"
-            ) {
-
-                if (userAnswer === true) {
-                    userAnswerText = "صحیح";
-                }
-
-                else if (userAnswer === false) {
-                    userAnswerText = "غلط";
-                }
-
-                if (correctAnswer === true) {
-                    correctAnswerText = "صحیح";
-                }
-
-                else if (correctAnswer === false) {
-                    correctAnswerText = "غلط";
-                }
-            }
-
-            /*
-             * تعیین درست یا غلط
-             */
-
-            let resultText = "";
-
-            if (
-                question.type === "essay"
-            ) {
-
-                resultText = `
-                    <p style="color:#777;">
-                        📝 سؤال تشریحی؛
-                        نیازمند تصحیح دستی است.
-                    </p>
-                `;
-            }
-
-            else if (
-                userAnswer === null ||
-                userAnswer === ""
-            ) {
-
-                resultText = `
-                    <p style="color:#777;">
-                        ⚪ بدون پاسخ
-                    </p>
-                `;
-            }
-
-            else if (
-                String(userAnswer).trim().toLowerCase() ===
-                String(correctAnswer).trim().toLowerCase()
-            ) {
-
-                resultText = `
-                    <p style="color:green;">
-                        🟢 درست
-                    </p>
-                `;
+            else if (type === "truefalse") {
+                isCorrect =
+                    String(userAnswer) === String(correctAnswer);
             }
 
             else {
+                isCorrect =
+                    String(userAnswer).trim().toLowerCase() ===
+                    String(correctAnswer).trim().toLowerCase();
+            }
 
-                resultText = `
-                    <p style="color:red;">
-                        🔴 غلط
-                    </p>
+            resultText = isCorrect
+                ? `<p style="color:green;">🟢 درست</p>`
+                : `<p style="color:red;">🔴 غلط</p>`;
+        }
+
+        // نمایش معیارهای تصحیح تشریحی
+        let rubricHTML = "";
+
+        if (type === "essay") {
+
+            const criteriaResults =
+                Array.isArray(answer.criteriaResults)
+                    ? answer.criteriaResults
+                    : [];
+
+            rubricHTML = `
+                <div style="
+                    margin-top:15px;
+                    padding:12px;
+                    background:#f5f8fc;
+                    border-radius:8px;
+                ">
+                    <strong>📋 نتیجه معیارهای تصحیح:</strong>
+            `;
+
+            if (criteriaResults.length > 0) {
+
+                criteriaResults.forEach((criterion, i) => {
+
+                    rubricHTML += `
+                        <div style="
+                            margin-top:10px;
+                            padding:10px;
+                            background:white;
+                            border:1px solid #ddd;
+                            border-radius:7px;
+                        ">
+                            <strong>معیار ${i + 1}:</strong>
+                            ${criterion.criterion || ""}
+
+                            <p>
+                                امتیاز این معیار:
+                                ${criterion.earnedPoints ?? 0}
+                                از
+                                ${criterion.points ?? 0}
+                            </p>
+                        </div>
+                    `;
+                });
+
+            } else {
+
+                rubricHTML += `
+                    <p>اطلاعات معیارهای تصحیح موجود نیست.</p>
                 `;
             }
 
-            /*
-             * ساخت کارت سؤال
-             */
-
-            html += `
-                <div
-                    style="
-                        margin-bottom:20px;
-                        padding:15px;
-                        background:white;
-                        border-radius:10px;
-                        border:1px solid #ddd;
-                    "
-                >
-
-                    <h4>
-                        📝 سؤال ${answerIndex + 1}
-                    </h4>
-
-                    <p>
-                        <strong>
-                            ${question.question}
-                        </strong>
-                    </p>
-
-                    <p>
-                        👨‍🎓
-                        <strong>
-                            پاسخ دانش‌آموز:
-                        </strong>
-                        ${userAnswerText}
-                    </p>
-
-                    <p>
-                        ✅
-                        <strong>
-                            پاسخ صحیح:
-                        </strong>
-                        ${correctAnswerText}
-                    </p>
-
-                    ${resultText}
-
+            rubricHTML += `
                 </div>
             `;
         }
-    );
+
+        const earnedPoints =
+            Number(answer.earnedPoints ?? 0);
+
+        const maxPoints =
+            Number(answer.maxPoints ?? 0);
+
+        html += `
+            <div style="
+                margin-bottom:20px;
+                padding:15px;
+                background:white;
+                border-radius:10px;
+                border:1px solid #ddd;
+            ">
+
+                <h4>📝 سؤال ${answerIndex + 1}</h4>
+
+                <p>
+                    <strong>${question.question || ""}</strong>
+                </p>
+
+                <p>
+                    👨‍🎓 <strong>پاسخ دانش‌آموز:</strong>
+                    ${userAnswerText}
+                </p>
+
+                ${
+                    type !== "essay"
+                    ? `
+                        <p>
+                            ✅ <strong>پاسخ صحیح:</strong>
+                            ${correctAnswerText}
+                        </p>
+                    `
+                    : ""
+                }
+
+                ${resultText}
+
+                <p style="font-weight:bold;color:#1769aa;">
+                    🏆 نمره:
+                    ${earnedPoints}
+                    از
+                    ${maxPoints}
+                </p>
+
+                ${rubricHTML}
+
+            </div>
+        `;
+    });
 
     details.innerHTML = html;
-
     details.style.display = "block";
 }
-
 
 
 
@@ -3691,4 +3805,103 @@ document.input.placeholder.forEach(option => {
 
 
 
-// تغییر فونت همه پاراگراف‌ها
+/* =================================
+   مدیریت کلیدواژه‌های سؤال تشریحی
+================================= */
+
+// افزودن کلیدواژه جدید
+function addEssayKeyword() {
+
+    const keywordsList =
+        document.getElementById("essay-keywords-list");
+
+    if (!keywordsList) return;
+
+    const index =
+        keywordsList.querySelectorAll(
+            ".essay-keyword-item"
+        ).length + 1;
+
+    const keywordItem =
+        document.createElement("div");
+
+    keywordItem.className =
+        "essay-keyword-item";
+
+    keywordItem.innerHTML = `
+        <label>کلیدواژه ${index}:</label>
+
+        <input
+            type="text"
+            class="essay-keyword"
+            placeholder="کلیدواژه را وارد کنید"
+        >
+
+        <label>امتیاز:</label>
+
+        <input
+            type="number"
+            class="essay-keyword-points"
+            min="0"
+            step="0.25"
+            value="1"
+        >
+
+        <button
+            type="button"
+            onclick="this.parentElement.remove(); updateEssayTotalPoints();"
+        >
+            حذف
+        </button>
+    `;
+
+    keywordsList.appendChild(keywordItem);
+
+    updateEssayTotalPoints();
+}
+
+
+// محاسبه مجموع امتیازها
+function updateEssayTotalPoints() {
+
+    const pointsInputs =
+        document.querySelectorAll(
+            "#essay-keywords-list .essay-keyword-points"
+        );
+
+    let total = 0;
+
+    pointsInputs.forEach(function(input) {
+
+        total += Number(input.value) || 0;
+
+    });
+
+    const totalDisplay =
+        document.getElementById("essay-total-points");
+
+    if (totalDisplay) {
+
+        totalDisplay.textContent =
+            "مجموع نمره کلیدواژه‌ها: " +
+            Number(total.toFixed(2));
+
+    }
+
+}
+
+
+// به‌روزرسانی مجموع هنگام تغییر امتیاز
+document.addEventListener("input", function(event) {
+
+    if (
+        event.target.classList.contains(
+            "essay-keyword-points"
+        )
+    ) {
+
+        updateEssayTotalPoints();
+
+    }
+
+});
