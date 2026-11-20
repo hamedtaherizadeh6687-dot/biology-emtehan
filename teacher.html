@@ -170,22 +170,20 @@
             <!-- پایه -->
 
             <label for="teacher-grade">
-                پایه:
+                کلاس:
             </label>
 
 
             <select id="teacher-grade">
 
-                <option value="هفتم">
-                    هفتم
+       
+
+                <option value="نهم A">
+                    نهم A
                 </option>
 
-                <option value="هشتم">
-                    هشتم
-                </option>
-
-                <option value="نهم">
-                    نهم
+                <option value="نهم B">
+                    نهم B
                 </option>
 
             </select>
@@ -250,7 +248,7 @@
                 </option>
 
 
-                <option value="13  ">
+                <option value="13 درس ">
                    درس 13
                 </option>
 
@@ -414,57 +412,106 @@
             </div>
 
 
-           
-<div id="essay-rubric-box" style="display: none; margin-top: 15px;">
-    <h3>معیارهای تصحیح سؤال تشریحی</h3>
-    <p>برای هر معیار، متن، کلیدواژه‌ها و نمره را وارد کنید.</p>
+            <div id="essay-rubric-box" style="display: none; margin-top: 15px;">
 
-    <div class="rubric-item">
-        <label>معیار اول:</label>
-        <input type="text" id="rubric-criterion-1"
-               placeholder="مثلاً توضیح فرایند فتوسنتز">
-
-        <label>کلیدواژه‌های معیار اول:</label>
-        <input type="text" id="rubric-keywords-1"
-               placeholder="مثلاً نور، آب، گلوکز">
-
-        <label>نمرهٔ معیار اول:</label>
-        <input type="number" id="rubric-points-1"
-               min="0" step="0.25" value="2">
-    </div>
-
-    <div class="rubric-item">
-        <label>معیار دوم:</label>
-        <input type="text" id="rubric-criterion-2"
-               placeholder="مثلاً نقش نور در فتوسنتز">
-
-        <label>کلیدواژه‌های معیار دوم:</label>
-        <input type="text" id="rubric-keywords-2"
-               placeholder="مثلاً نور، انرژی">
-
-        <label>نمرهٔ معیار دوم:</label>
-        <input type="number" id="rubric-points-2"
-               min="0" step="0.25" value="2">
-    </div>
-
-    <div class="rubric-item">
-        <label>معیار سوم:</label>
-        <input type="text" id="rubric-criterion-3"
-               placeholder="مثلاً نقش کلروفیل">
-
-        <label>کلیدواژه‌های معیار سوم:</label>
-        <input type="text" id="rubric-keywords-3"
-               placeholder="مثلاً کلروفیل، سبزینه">
-
-        <label>نمرهٔ معیار سوم:</label>
-        <input type="number" id="rubric-points-3"
-               min="0" step="0.25" value="1">
-    </div>
-
-    <p>نمرهٔ کل سؤال: ۵</p>
-</div>
-
-
+                <h3>تنظیم تصحیح سؤال تشریحی</h3>
+            
+                <!-- پاسخ کامل -->
+                <div class="essay-reference-box">
+            
+                    <label for="essay-reference-answer">
+                        پاسخ کامل و مرجع:
+                    </label>
+            
+                    <textarea
+                        id="essay-reference-answer"
+                        rows="5"
+                        placeholder="پاسخ علمی و کامل سؤال را وارد کنید..."
+                    ></textarea>
+            
+                </div>
+            
+                <hr>
+            
+                <!-- کلیدواژه‌ها -->
+                <h3>کلیدواژه‌ها و امتیازها</h3>
+            
+                <p>
+                    برای هر کلیدواژه، امتیاز جداگانه تعیین کنید.
+                    دانش‌آموز با داشتن هر کلیدواژه، امتیاز آن را دریافت می‌کند.
+                </p>
+            
+                <div id="essay-keywords-list">
+            
+                    <div class="essay-keyword-item">
+                        <label>کلیدواژه اول:</label>
+                        <input
+                            type="text"
+                            class="essay-keyword"
+                            placeholder="مثلاً فتوسنتز"
+                        >
+            
+                        <label>امتیاز:</label>
+                        <input
+                            type="number"
+                            class="essay-keyword-points"
+                            min="0"
+                            step="0.25"
+                            value="1"
+                        >
+                    </div>
+            
+                    <div class="essay-keyword-item">
+                        <label>کلیدواژه دوم:</label>
+                        <input
+                            type="text"
+                            class="essay-keyword"
+                            placeholder="مثلاً کلروفیل"
+                        >
+            
+                        <label>امتیاز:</label>
+                        <input
+                            type="number"
+                            class="essay-keyword-points"
+                            min="0"
+                            step="0.25"
+                            value="1"
+                        >
+                    </div>
+            
+                    <div class="essay-keyword-item">
+                        <label>کلیدواژه سوم:</label>
+                        <input
+                            type="text"
+                            class="essay-keyword"
+                            placeholder="مثلاً نور"
+                        >
+            
+                        <label>امتیاز:</label>
+                        <input
+                            type="number"
+                            class="essay-keyword-points"
+                            min="0"
+                            step="0.25"
+                            value="1"
+                        >
+                    </div>
+            
+                </div>
+            
+                <button
+                    type="button"
+                    onclick="addEssayKeyword()"
+                >
+                    ➕ افزودن کلیدواژه
+                </button>
+            
+                <p id="essay-total-points">
+                    مجموع نمره کلیدواژه‌ها: ۳
+                </p>
+            
+            </div>
+            
 
             <!-- ذخیره -->
 
